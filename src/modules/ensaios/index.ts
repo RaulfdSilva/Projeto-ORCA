@@ -1,2 +1,2 @@
 import type { ModuleDefinition } from "../types";
-export const ensaios = { slug: "ensaios", title: "Ensaios", description: "Espaço reservado ao módulo de ensaios." } as const satisfies ModuleDefinition;
+export const ensaios = { slug: "ensaios", title: "Ensaios", description: "Registro manual de ensaios com múltiplos pontos de medição e dados temporários." } as const satisfies ModuleDefinition;

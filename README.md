@@ -3,7 +3,7 @@ O ORCA é uma plataforma inteligente de diagnóstico e monitoramento de bombas e
 
 ## Estado atual
 
-A descrição acima registra a visão original do projeto, e não funcionalidades disponíveis. Esta entrega contém somente a fundação técnica e páginas informativas dos módulos de equipamentos, ensaios, diagnósticos e relatórios.
+A descrição acima registra a visão original do projeto, e não funcionalidades disponíveis. Além da fundação técnica, o módulo de ensaios permite registro manual de múltiplos pontos, edição, exclusão e finalização em memória. Equipamentos, diagnósticos e relatórios permanecem como páginas informativas.
 
 **Protótipo demonstrativo — não validado para uso operacional**
 
@@ -40,7 +40,17 @@ npm run build
 
 - `src/app/`: App Router, layout, estilos e páginas informativas.
 - `src/components/`: componentes compartilhados, incluindo o aviso do protótipo.
-- `src/modules/`: diretórios independentes para equipamentos, ensaios, diagnósticos e relatórios; contêm somente metadados de apresentação.
+- `src/modules/`: diretórios independentes para equipamentos, ensaios, diagnósticos e relatórios; ensaios contém modelo, validações, estado e interface; os demais contêm somente metadados de apresentação.
 - `docs/PRD.md`: espaço para requisitos futuros aprovados.
 
-As páginas usam os metadados dos módulos, sem camadas de serviços ou persistência. Tailwind CSS cuida da apresentação; não há biblioteca adicional de componentes. Os testes básicos verificam a presença do aviso e a navegação para os quatro módulos, sem simular diagnósticos hidráulicos.
+Tailwind CSS cuida da apresentação; não há biblioteca adicional de componentes. O módulo de ensaios usa estado local React, sem serviços ou persistência. Os testes verificam o aviso do protótipo, a navegação, as validações e a manipulação de pontos, sem simular diagnósticos hidráulicos.
+
+## Ensaios multiponto
+
+Em `/ensaios`, selecione **Iniciar ensaio**, preencha as medições disponíveis e use **Adicionar ponto**. Os campos são opcionais: vazio significa sem dado, enquanto `0` é registrado como zero. Edite ou exclua os pontos antes de selecionar **Finalizar ensaio**. Salve ou cancele uma edição aberta antes de manipular outro ponto ou finalizar.
+
+Os dados existem somente na memória desta página: recarregar, sair ou fechar a página apaga o ensaio. Finalizar bloqueia alterações, sem salvar permanentemente nem avaliar medições. Não há cálculo de diagnóstico, limites hidráulicos ou identificação obrigatória de equipamento.
+
+Pontos sem medições e ensaios sem dados continuam permitidos, com aviso informativo de insuficiência para análise técnica. Durante um ensaio não finalizado, a aplicação solicita confirmação nativa ao recarregar ou fechar a página, conforme suporte do navegador. Esse mecanismo não salva dados nem intercepta navegação interna; após finalizar, a confirmação é removida.
+
+Consulte [decisões técnicas e limitações](docs/ensaios-multiponto.md).
