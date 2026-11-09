@@ -13,6 +13,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <nav aria-label="Navegação principal" className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium"><Link href="/">Início</Link>{modules.map(module => <Link key={module.slug} href={`/${module.slug}`}>{module.title}</Link>)}</nav>
     </div></header>
     <main id="conteudo" className="mx-auto min-h-[70vh] max-w-6xl px-6 py-12 sm:py-20">{children}</main>
-    <footer className="border-t border-slate-300 px-6 py-7 text-center text-sm text-slate-600">ORCA · Fundação técnica · Sem dados operacionais</footer>
+    <footer className="border-t border-slate-300 px-6 py-7 text-center text-sm text-slate-600">ORCA · Protótipo demonstrativo · Sem validação operacional</footer>
   </body></html>;
 }
