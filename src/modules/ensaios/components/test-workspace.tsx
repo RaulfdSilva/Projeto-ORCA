@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useReducer, useRef, useState, type FormEvent } from "react";
-import { emptyDraft, hasMeasurements, measurementFields, pointToDraft, type PointDraft } from "../model";
-import { testReducer } from "../state";
-import { validatePoint, type FieldErrors } from "../validation";
+import { useEffect, useRef, type FormEvent } from "react";
+import { emptyDraft, hasMeasurements, measurementFields, pointToDraft } from "../model";
+import { validatePoint } from "../validation";
 
-import { registerBeforeUnload } from "../before-unload";
+import { useTestWorkspace } from "./test-provider";
 import { NoMeasurementsNotice } from "./no-measurements-notice";
 
 const buttonBase = "rounded border px-4 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50";
@@ -13,18 +12,14 @@ const button = `${buttonBase} border-slate-400 bg-white text-slate-900 hover:bg-
 const primaryButton = `${buttonBase} border-sky-800 bg-sky-800 text-white hover:bg-sky-900`;
 
 export function TestWorkspace() {
-  const [test, dispatch] = useReducer(testReducer, null);
-  const [draft, setDraft] = useState<PointDraft>({ ...emptyDraft });
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [message, setMessage] = useState("");
+  const { test, dispatch, draft, setDraft, editingId, setEditingId,
+    errors, setErrors, message, setMessage } = useTestWorkspace();
   const firstInput = useRef<HTMLInputElement>(null);
   const statusHeading = useRef<HTMLHeadingElement>(null);
   const pointsHeading = useRef<HTMLHeadingElement>(null);
   const hasDraft = editingId !== null || Object.values(draft).some(value => value !== "");
 
   const isActive = test?.status === "active";
-  useEffect(() => registerBeforeUnload(window, isActive), [isActive]);
   const testStatus = test?.status;
   useEffect(() => {
     if (testStatus) statusHeading.current?.focus();
@@ -60,7 +55,7 @@ export function TestWorkspace() {
 
   return <div className="mt-8 space-y-8">
     <p className="rounded border border-amber-300 bg-amber-50 p-4 text-amber-950">
-      Dados somente na memória desta página. Recarregar, fechar ou sair desta página apaga o ensaio. Finalizar não salva os dados de forma permanente.
+      Dados somente na memória da aplicação. Você pode navegar entre as seções do ORCA e retornar sem perder o ensaio ou a edição aberta. Recarregar, fechar ou sair da aplicação elimina os dados. Finalizar não salva os dados de forma permanente.
     </p>
     {!test ? <button type="button" className={primaryButton} onClick={() => {
       dispatch({ type: "start", id: crypto.randomUUID() });
@@ -71,7 +66,7 @@ export function TestWorkspace() {
         <p className="mt-2 break-all text-sm text-slate-600">Identificador do ensaio: {test.id}</p>
         <p className="mt-2 text-slate-600">Pontos registrados: {test.points.length}</p>
         {!test.points.some(point => hasMeasurements(point.measurements)) && <NoMeasurementsNotice subject="test" />}
-        {test.status === "finished" && <p className="mt-3">Edição encerrada. Os pontos continuam disponíveis somente nesta página.</p>}
+        {test.status === "finished" && <p className="mt-3">Edição encerrada. Os pontos continuam disponíveis nesta sessão da aplicação.</p>}
       </section>
       {test.status === "active" && <form aria-labelledby="point-form-title" noValidate onSubmit={savePoint} className="border border-slate-300 bg-white p-5 sm:p-7">
         <h2 id="point-form-title" className="text-xl font-bold">{editingId ? "Editar ponto" : "Adicionar ponto"}</h2>
@@ -119,7 +114,7 @@ export function TestWorkspace() {
         {hasDraft && <p className="text-sm text-slate-600">Salve ou cancele a edição antes de manipular outros pontos ou finalizar.</p>}
         <p className="text-sm text-slate-600">Finalizar encerra a edição dos pontos. Não avalia os dados nem gera diagnóstico.</p>
         <button type="button" disabled={hasDraft} className={primaryButton} onClick={() => {
-          dispatch({ type: "finish" }); setMessage("Ensaio finalizado. Edição encerrada; dados apenas na memória da página.");
+          dispatch({ type: "finish" }); setMessage("Ensaio finalizado. Edição encerrada; dados apenas na memória da aplicação.");
         }}>Finalizar ensaio</button>
       </div>}
     </>}
