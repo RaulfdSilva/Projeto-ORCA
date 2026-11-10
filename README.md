@@ -43,14 +43,14 @@ npm run build
 - `src/modules/`: diretórios independentes para equipamentos, ensaios, diagnósticos e relatórios; ensaios contém modelo, validações, estado e interface; os demais contêm somente metadados de apresentação.
 - `docs/PRD.md`: espaço para requisitos futuros aprovados.
 
-Tailwind CSS cuida da apresentação; não há biblioteca adicional de componentes. O módulo de ensaios usa estado local React, sem serviços ou persistência. Os testes verificam o aviso do protótipo, a navegação, as validações e a manipulação de pontos, sem simular diagnósticos hidráulicos.
+Tailwind CSS cuida da apresentação; não há biblioteca adicional de componentes. O módulo de ensaios usa estado React compartilhado no layout raiz, sem serviços ou persistência. Os testes verificam o aviso do protótipo, a navegação, as validações e a manipulação de pontos, sem simular diagnósticos hidráulicos.
 
 ## Ensaios multiponto
 
 Em `/ensaios`, selecione **Iniciar ensaio**, preencha as medições disponíveis e use **Adicionar ponto**. Os campos são opcionais: vazio significa sem dado, enquanto `0` é registrado como zero. Edite ou exclua os pontos antes de selecionar **Finalizar ensaio**. Salve ou cancele uma edição aberta antes de manipular outro ponto ou finalizar.
 
-Os dados existem somente na memória desta página: recarregar, sair ou fechar a página apaga o ensaio. Finalizar bloqueia alterações, sem salvar permanentemente nem avaliar medições. Não há cálculo de diagnóstico, limites hidráulicos ou identificação obrigatória de equipamento.
+Os dados existem somente na memória da aplicação. Navegar internamente entre as seções do ORCA preserva o ensaio, seus pontos e a edição aberta. Recarregar, fechar ou sair da aplicação apaga o ensaio. Finalizar bloqueia alterações, sem salvar permanentemente nem avaliar medições. Não há cálculo de diagnóstico, limites hidráulicos ou identificação obrigatória de equipamento.
 
-Pontos sem medições e ensaios sem dados continuam permitidos, com aviso informativo de insuficiência para análise técnica. Durante um ensaio não finalizado, a aplicação solicita confirmação nativa ao recarregar ou fechar a página, conforme suporte do navegador. Esse mecanismo não salva dados nem intercepta navegação interna; após finalizar, a confirmação é removida.
+Pontos sem medições e ensaios sem dados continuam permitidos, com aviso informativo de insuficiência para análise técnica. Durante um ensaio não finalizado, a aplicação solicita confirmação nativa ao recarregar ou fechar a página, conforme suporte do navegador. A proteção de recarga/fechamento continua ativa nas demais seções enquanto o ensaio estiver em andamento. A navegação interna não requer confirmação porque o estado é preservado no layout compartilhado; após finalizar, a confirmação é removida.
 
 Consulte [decisões técnicas e limitações](docs/ensaios-multiponto.md).
