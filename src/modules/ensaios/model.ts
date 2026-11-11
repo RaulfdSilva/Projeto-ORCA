@@ -14,6 +14,7 @@ export interface MeasurementPoint {
   readonly measurements: Measurements;
 }
 export interface HydraulicTest {
+  readonly equipmentId: string;
   readonly id: string;
   readonly status: "active" | "finished";
   readonly points: readonly MeasurementPoint[];

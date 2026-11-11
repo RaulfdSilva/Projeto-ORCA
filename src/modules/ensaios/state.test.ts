@@ -5,13 +5,13 @@ import { testReducer, type TestAction } from "./state";
 const point: MeasurementPoint = { id: "point-a", measurements: {
   pressure: 0, flow: null, rotation: 1000, temperature: -2, drainFlow: null,
 } };
-const active: HydraulicTest = { id: "test-a", status: "active", points: [] };
+const active: HydraulicTest = { id: "test-a", equipmentId: "equipment-a", status: "active", points: [] };
 
 describe("manipulação de pontos no ensaio", () => {
   it("inicia um ensaio vazio e impede reinício acidental", () => {
-    expect(testReducer(null, { type: "start", id: "test-a" })).toEqual(active);
-    expect(testReducer(null, { type: "start", id: " " })).toBeNull();
-    expect(testReducer(active, { type: "start", id: "test-b" })).toBe(active);
+    expect(testReducer(null, { type: "start", equipmentId: "equipment-a", id: "test-a" })).toEqual(active);
+    expect(testReducer(null, { type: "start", equipmentId: "equipment-a", id: " " })).toBeNull();
+    expect(testReducer(active, { type: "start", equipmentId: "equipment-a", id: "test-b" })).toBe(active);
   });
   it("adiciona múltiplos pontos, edita preservando IDs e exclui somente o ponto solicitado sem mutar o original", () => {
     const first = testReducer(active, { type: "add", point });
@@ -50,7 +50,7 @@ describe("manipulação de pontos no ensaio", () => {
     const actions: TestAction[] = [
       { type: "add", point: { ...point, id: "point-b" } },
       { type: "update", id: point.id, measurements: { ...point.measurements, flow: 1 } },
-      { type: "remove", id: point.id }, { type: "finish" }, { type: "start", id: "test-b" },
+      { type: "remove", id: point.id }, { type: "finish" }, { type: "start", equipmentId: "equipment-a", id: "test-b" },
     ];
     for (const action of actions) expect(testReducer(finished, action)).toBe(finished);
   });

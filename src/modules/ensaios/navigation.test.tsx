@@ -1,23 +1,38 @@
 // @vitest-environment jsdom
-import { act } from "react";
+import { act, useEffect } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { TestProvider } from "./components/test-provider";
+import { TestProvider, useEquipmentWorkspace } from "./components/test-provider";
 import { TestWorkspace } from "./components/test-workspace";
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 let container: HTMLDivElement;
 let root: Root;
 
+// Os testes de regressão de medições agora partem de um equipamento cadastrado.
+function EquipmentFixture() {
+  const { dispatch } = useEquipmentWorkspace();
+  useEffect(() => { dispatch({ type: "equipment/add", equipment: {
+    id: "fixture-equipment", manufacturer: "Fabricante de teste", family: "Família de teste", model: "Modelo de teste", serial: "",
+  } }); }, [dispatch]);
+  return null;
+}
 // Reproduz o contrato do App Router: o layout/provider permanece, a página desmonta.
 async function navigate(section: string) {
   await act(async () => {
-    root.render(<TestProvider>{section === "ensaios"
+    root.render(<TestProvider><EquipmentFixture />{section === "ensaios"
       ? <TestWorkspace />
       : <section key={section}>{section}</section>}</TestProvider>);
   });
 }
 async function click(label: string) {
+  if (label === "Iniciar ensaio") {
+    const select = container.querySelector<HTMLSelectElement>("#test-equipment");
+    if (select) await act(async () => {
+      select.value = "fixture-equipment";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
   const button = [...container.querySelectorAll("button")].find(item =>
     item.getAttribute("aria-label") === label || item.textContent === label);
   if (!button) throw new Error(`Botão não encontrado: ${label}`);

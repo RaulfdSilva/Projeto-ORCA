@@ -2,7 +2,7 @@ import type { HydraulicTest, MeasurementPoint, Measurements } from "./model";
 import { hasValidMeasurements } from "./validation";
 
 export type TestAction =
-  | { type: "start"; id: string }
+  | { type: "start"; id: string; equipmentId: string }
   | { type: "add"; point: MeasurementPoint }
   | { type: "update"; id: string; measurements: Measurements }
   | { type: "remove"; id: string }
@@ -10,7 +10,7 @@ export type TestAction =
 
 export function testReducer(state: HydraulicTest | null, action: TestAction): HydraulicTest | null {
   if (action.type === "start") {
-    return state === null && action.id.trim() ? { id: action.id, status: "active", points: [] } : state;
+    return state === null && action.id.trim() && action.equipmentId.trim() ? { id: action.id, equipmentId: action.equipmentId, status: "active", points: [] } : state;
   }
   if (!state || state.status !== "active") return state;
   switch (action.type) {

@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { emptyDraft, hasMeasurements, measurementFields, pointToDraft } from "../model";
 import { validatePoint } from "../validation";
 
-import { useTestWorkspace } from "./test-provider";
+import Link from "next/link";
+import { equipmentLabel } from "@/modules/equipamentos/model";
+import { useEquipmentWorkspace, useTestWorkspace } from "./test-provider";
 import { NoMeasurementsNotice } from "./no-measurements-notice";
 
 const buttonBase = "rounded border px-4 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50";
@@ -14,6 +16,9 @@ const primaryButton = `${buttonBase} border-sky-800 bg-sky-800 text-white hover:
 export function TestWorkspace() {
   const { test, dispatch, draft, setDraft, editingId, setEditingId,
     errors, setErrors, message, setMessage } = useTestWorkspace();
+  const { equipment } = useEquipmentWorkspace();
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState("");
+  const linkedEquipment = equipment.find(item => item.id === test?.equipmentId);
   const firstInput = useRef<HTMLInputElement>(null);
   const statusHeading = useRef<HTMLHeadingElement>(null);
   const pointsHeading = useRef<HTMLHeadingElement>(null);
@@ -57,13 +62,25 @@ export function TestWorkspace() {
     <p className="rounded border border-amber-300 bg-amber-50 p-4 text-amber-950">
       Dados somente na memória da aplicação. Você pode navegar entre as seções do ORCA e retornar sem perder o ensaio ou a edição aberta. Recarregar, fechar ou sair da aplicação elimina os dados. Finalizar não salva os dados de forma permanente.
     </p>
-    {!test ? <button type="button" className={primaryButton} onClick={() => {
-      dispatch({ type: "start", id: crypto.randomUUID() });
-      setMessage("Ensaio iniciado. Registre os pontos de medição.");
-    }}>Iniciar ensaio</button> : <>
+    {!test ? <section aria-labelledby="start-test-title" className="space-y-4">
+      <h2 id="start-test-title" className="text-xl font-bold">Iniciar ensaio</h2>
+      {equipment.length === 0 ? <p>Cadastre um equipamento antes de iniciar um ensaio. <Link href="/equipamentos" className="font-semibold text-sky-800">Cadastrar equipamento</Link></p> : <div>
+        <label htmlFor="test-equipment" className="block font-semibold">Equipamento do ensaio</label>
+        <select id="test-equipment" value={selectedEquipmentId} onChange={event => setSelectedEquipmentId(event.target.value)} className="mt-2 w-full min-w-0 max-w-xl rounded border border-slate-400 bg-white px-3 py-3 text-base">
+          <option value="">Selecione um equipamento</option>
+          {equipment.map(item => <option key={item.id} value={item.id}>{equipmentLabel(item)} — {item.id}</option>)}
+        </select>
+      </div>}
+      <button type="button" disabled={!equipment.some(item => item.id === selectedEquipmentId)} className={primaryButton} onClick={() => {
+        dispatch({ type: "start", id: crypto.randomUUID(), equipmentId: selectedEquipmentId });
+        setMessage("Ensaio iniciado. Registre os pontos de medição.");
+      }}>Iniciar ensaio</button>
+    </section> : <>
       <section aria-labelledby="test-status" className="min-w-0 border border-slate-300 bg-white p-5 sm:p-7">
         <h2 ref={statusHeading} tabIndex={-1} id="test-status" className="text-xl font-bold">{test.status === "active" ? "Ensaio em andamento" : "Ensaio finalizado"}</h2>
         <p className="mt-2 break-all text-sm text-slate-600">Identificador do ensaio: {test.id}</p>
+        <p className="mt-3 break-words" data-testid="linked-equipment">Equipamento: {linkedEquipment ? equipmentLabel(linkedEquipment) : "Equipamento indisponível"}</p>
+        <p className="mt-2 break-all text-sm text-slate-600">ID do equipamento: {test.equipmentId}</p>
         <p className="mt-2 text-slate-600">Pontos registrados: {test.points.length}</p>
         {!test.points.some(point => hasMeasurements(point.measurements)) && <NoMeasurementsNotice subject="test" />}
         {test.status === "finished" && <p className="mt-3">Edição encerrada. Os pontos continuam disponíveis nesta sessão da aplicação.</p>}
