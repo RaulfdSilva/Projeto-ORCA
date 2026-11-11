@@ -2,7 +2,7 @@
 
 ## Escopo
 
-Registro manual de um ensaio por instância da aplicação, com múltiplos pontos. Cada ponto possui pressão (bar), vazão (L/min), rotação (rpm), temperatura (°C) e vazão de dreno (L/min). Nenhuma identificação de equipamento é exigida.
+Registro manual de um ensaio por instância da aplicação, com múltiplos pontos. Cada ponto possui pressão (bar), vazão (L/min), rotação (rpm), temperatura (°C) e vazão de dreno (L/min). A partir da Entrega 03, é obrigatório selecionar um equipamento cadastrado antes de iniciar. O vínculo é feito pelo ID interno estável.
 
 É possível iniciar, adicionar, editar e excluir pontos e finalizar. Finalizar encerra a edição local; não aprova os dados nem produz diagnóstico. Não há autenticação, banco de dados, IA, sensores, PDF, limites de fabricante ou hipóteses de falha.
 
@@ -21,7 +21,7 @@ Nenhuma dependência de produção foi adicionada. `jsdom` é usado somente no d
 
 IDs de ensaio e pontos são UUIDs gerados com `crypto.randomUUID()` ao iniciar/adicionar, em contexto seguro (HTTPS ou localhost). O reducer preserva IDs na edição e impede duplicatas no ensaio. A numeração visual pode mudar após exclusões; o identificador permanece estável.
 
-Os cinco campos são `number | null`. Campo vazio ou somente com espaços vira `null`; zero permanece `0`. Um ponto totalmente sem dados é permitido porque não há medição obrigatória aprovada. Um ensaio pode ser finalizado vazio; isso não confere validade técnica.
+Os cinco campos são `number | null`. Campo vazio ou somente com espaços vira `null`; zero permanece `0`. Um ponto totalmente sem dados é permitido porque não há medição obrigatória aprovada (o vínculo com equipamento é obrigatório). Um ensaio pode ser finalizado vazio; isso não confere validade técnica.
 
 A entrada aceita decimais com ponto ou vírgula, sinal opcional e espaços externos. Não aceita unidades, separadores de milhar, notação exponencial, hexadecimal, `NaN`, infinito ou texto. Por exemplo, `1.234` significa um decimal, e não mil duzentos e trinta e quatro. São usados números JavaScript de precisão finita; não se oferece aritmética decimal exata. Valores fora da representação finita são rejeitados. Ao editar valores pequenos ou grandes, a conversão evita notação exponencial para manter o formato aceito pelo formulário.
 
